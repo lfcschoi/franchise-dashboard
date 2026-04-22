@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<!-- saved from url=(0044)file:///C:/Users/user/Downloads/index_6.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>가맹점 오픈 현황</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif; background:#f0f2f5; color:#1a1a1a; font-size:14px; min-height:100vh; }
+
+/* 헤더 */
+.header { background:#1e293b; padding:0 28px; display:flex; align-items:center; justify-content:space-between; height:58px; position:sticky; top:0; z-index:200; }
+.header-title { font-size:16px; font-weight:700; color:#fff; }
+.header-sub { font-size:11px; color:#64748b; margin-top:1px; }
+.header-right { display:flex; align-items:center; gap:8px; }
+.btn { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:none; transition:all .15s; }
+.btn-ghost { background:rgba(255,255,255,.1); color:#e2e8f0; border:1px solid rgba(255,255,255,.15); }
+.btn-ghost:hover { background:rgba(255,255,255,.2); }
+.btn-primary { background:#3b82f6; color:#fff; }
+.btn-primary:hover { background:#2563eb; }
+.btn-save-sheet { background:#16a34a; color:#fff; border:none; }
+.btn-save-sheet:hover { background:#15803d; }
+.btn-save-sheet.saving { background:#94a3b8; cursor:not-allowed; }
+.sort-select { padding:5px 9px; border:1px solid rgba(255,255,255,.2); border-radius:7px; font-size:12px; background:rgba(255,255,255,.08); color:#e2e8f0; cursor:pointer; }
+.sort-select option { background:#1e293b; }
+
+/* 동기화 바 */
+.sync-bar { padding:7px 28px; font-size:12px; display:none; align-items:center; gap:8px; font-weight:500; }
+.sync-bar.show { display:flex; }
+.sync-bar.loading { background:#eff6ff; color:#2563eb; border-bottom:1px solid #bfdbfe; }
+.sync-bar.success { background:#f0fdf4; color:#15803d; border-bottom:1px solid #bbf7d0; }
+.sync-bar.error   { background:#fef2f2; color:#dc2626; border-bottom:1px solid #fecaca; }
+.spin { display:inline-block; animation:spin 1s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* 기간 탭 */
+.period-wrap { position:sticky; top:58px; z-index:100; }
+.month-row { background:#fff; border-bottom:1px solid #e2e8f0; padding:0 28px; display:flex; align-items:center; gap:0; overflow-x:auto; }
+.ptab { padding:13px 16px; font-size:13px; font-weight:600; color:#94a3b8; border-bottom:3px solid transparent; cursor:pointer; white-space:nowrap; transition:all .15s; margin-bottom:-1px; }
+.ptab:hover { color:#475569; background:#f8fafc; }
+.ptab.active { color:#2563eb; border-bottom-color:#2563eb; }
+.ptab.all-tab { color:#64748b; }
+.ptab.all-tab.active { color:#0f172a; border-bottom-color:#0f172a; }
+.week-row { background:#f8fafc; border-bottom:2px solid #e2e8f0; padding:0 28px; display:flex; align-items:center; gap:0; overflow-x:auto; transition:all .2s; }
+.week-row.hidden { display:none; }
+.wtab { padding:9px 14px; font-size:12px; font-weight:600; color:#94a3b8; border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap; transition:all .15s; margin-bottom:-2px; }
+.wtab:hover { color:#475569; background:#f1f5f9; }
+.wtab.active { color:#7c3aed; border-bottom-color:#7c3aed; }
+.wtab .wrange { font-size:10px; color:#94a3b8; font-weight:400; margin-left:4px; }
+
+.main { padding:20px 28px; display:flex; flex-direction:column; gap:18px; }
+
+/* KPI */
+.kpi-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+.kpi-card { background:#fff; border-radius:13px; padding:18px 20px; border:1px solid #e2e8f0; display:flex; align-items:center; gap:14px; }
+.kpi-icon { width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+.ic-blue{background:#eff6ff;} .ic-green{background:#f0fdf4;} .ic-amber{background:#fffbeb;} .ic-purple{background:#faf5ff;} .ic-red{background:#fef2f2;}
+.kpi-label { font-size:10px; color:#94a3b8; font-weight:700; letter-spacing:.4px; text-transform:uppercase; margin-bottom:3px; }
+.kpi-value { font-size:26px; font-weight:800; color:#0f172a; line-height:1; }
+.kpi-sub   { font-size:11px; color:#cbd5e1; margin-top:2px; }
+
+/* 섹션 카드 */
+.card { background:#fff; border-radius:13px; border:1px solid #e2e8f0; overflow:hidden; }
+.card-header { padding:16px 22px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #f1f5f9; }
+.card-title { font-size:14px; font-weight:700; color:#0f172a; }
+.card-sub { font-size:11px; color:#94a3b8; margin-top:2px; }
+
+/* 퍼널 */
+.funnel-wrap { display:grid; grid-template-columns:repeat(6,1fr); gap:0; padding:16px 22px; }
+.funnel-item { display:flex; align-items:center; }
+.funnel-step { flex:1; border:1px solid #e2e8f0; border-radius:11px; padding:14px 10px; text-align:center; background:#f8fafc; }
+.fs-icon  { font-size:22px; margin-bottom:7px; }
+.fs-label { font-size:10px; color:#64748b; font-weight:700; letter-spacing:.3px; margin-bottom:5px; }
+.fs-value { font-size:24px; font-weight:800; color:#0f172a; }
+.fs-rate  { display:inline-block; margin-top:5px; font-size:11px; font-weight:700; padding:2px 7px; border-radius:20px; }
+.fs-rate.up   { background:#dcfce7; color:#16a34a; }
+.fs-rate.mid  { background:#fef9c3; color:#a16207; }
+.fs-rate.low  { background:#fee2e2; color:#dc2626; }
+.f-arrow { font-size:20px; color:#d1d5db; padding:0 1px; flex-shrink:0; }
+.filter-sel { padding:4px 9px; border:1px solid #e2e8f0; border-radius:7px; font-size:12px; background:#fff; color:#475569; cursor:pointer; }
+
+/* 경로 카드 */
+.route-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; padding:16px 22px; }
+.rc { border-radius:11px; padding:14px; border:1px solid #e2e8f0; }
+.rc.rc-all { background:#1e293b; border-color:#1e293b; }
+.rc .rc-name { font-size:10px; font-weight:700; color:#64748b; margin-bottom:6px; display:flex; align-items:center; gap:4px; }
+.rc.rc-all .rc-name { color:#475569; }
+.rc .rc-dot { width:8px; height:8px; border-radius:50%; display:inline-block; }
+.rc .rc-num { font-size:26px; font-weight:800; color:#0f172a; line-height:1; }
+.rc.rc-all .rc-num { color:#fff; }
+.rc .rc-unit { font-size:11px; color:#94a3b8; }
+.rc .rc-sync { font-size:9px; background:#eff6ff; color:#2563eb; padding:1px 5px; border-radius:5px; margin-left:auto; }
+.rc hr { border:none; border-top:1px solid #f1f5f9; margin:9px 0; }
+.rc.rc-all hr { border-top-color:rgba(255,255,255,.08); }
+.rc-stat { display:flex; justify-content:space-between; font-size:11px; padding:1px 0; }
+.rc-stat .rsl { color:#94a3b8; }
+.rc-stat .rsv { font-weight:700; color:#475569; }
+.rc.rc-all .rsv { color:#64748b; }
+
+/* 테이블 */
+.rf-bar { padding:12px 22px; display:flex; gap:6px; flex-wrap:wrap; align-items:center; border-bottom:1px solid #f1f5f9; }
+.rf-btn { padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; border:1px solid #e2e8f0; background:#fff; cursor:pointer; color:#64748b; transition:all .15s; }
+.rf-btn:hover:not(.active) { background:#f8fafc; }
+.rf-btn.active { color:#fff; border-color:transparent; }
+.rf-btn.active.all{background:#1e293b;} .rf-btn.active.meta{background:#7c3aed;} .rf-btn.active.carrot{background:#ea580c;}
+.rf-btn.active.home{background:#0891b2;} .rf-btn.active.rep{background:#059669;} .rf-btn.active.mycha{background:#db2777;}
+.rf-btn.active.baemin{background:#16a34a;}
+
+table { width:100%; border-collapse:collapse; }
+thead tr { background:#f8fafc; }
+th { padding:10px 14px; text-align:left; font-size:10px; font-weight:700; color:#64748b; letter-spacing:.4px; border-bottom:1px solid #f1f5f9; white-space:nowrap; text-transform:uppercase; }
+td { padding:13px 14px; font-size:13px; color:#334155; border-bottom:1px solid #f8fafc; vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:#fafbfd; }
+.store-name { font-weight:700; color:#0f172a; font-size:13px; }
+.route-badge { display:inline-flex; align-items:center; padding:2px 9px; border-radius:20px; font-size:10px; font-weight:700; }
+.badge-meta{background:#ede9fe;color:#6d28d9;} .badge-carrot{background:#ffedd5;color:#c2410c;} .badge-rep{background:#d1fae5;color:#065f46;}
+.badge-home{background:#cffafe;color:#0e7490;} .badge-mycha{background:#fce7f3;color:#9d174d;} .badge-baemin{background:#dcfce7;color:#15803d;}
+
+.prog-bar { height:5px; background:#f1f5f9; border-radius:3px; overflow:hidden; min-width:80px; margin-bottom:3px; }
+.prog-fill { height:100%; border-radius:3px; }
+.prog-text { font-size:10px; color:#94a3b8; }
+.stage-btn { padding:3px 11px; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; border:1.5px solid; background:transparent; white-space:nowrap; }
+.stage-btn:hover { opacity:.75; }
+
+/* 체크박스+날짜 */
+.cell-wrap { display:flex; align-items:center; gap:5px; }
+.cell-check { width:15px; height:15px; accent-color:#2563eb; cursor:pointer; flex-shrink:0; }
+.cell-date-input { font-size:11px; border:1px solid #e2e8f0; border-radius:5px; padding:2px 4px; color:#334155; background:#f8fafc; width:112px; cursor:pointer; }
+.cell-date-input:focus { outline:none; border-color:#3b82f6; background:#fff; }
+
+/* 정렬 헤더 */
+.sort-th { cursor:pointer; user-select:none; }
+.sort-th:hover { color:#2563eb; background:#f0f6ff; }
+.sort-th .arr { font-size:10px; margin-left:2px; color:#cbd5e1; }
+.sort-th.asc .arr::after { content:'▲'; color:#2563eb; }
+.sort-th.desc .arr::after { content:'▼'; color:#2563eb; }
+.sort-th:not(.asc):not(.desc) .arr::after { content:'⇅'; }
+
+/* 섹션 구분 */
+.tbl-section-header { padding:12px 22px 8px; display:flex; align-items:center; gap:10px; }
+.tbl-section-title { font-size:13px; font-weight:700; }
+.tbl-section-count { font-size:12px; font-weight:700; padding:2px 9px; border-radius:20px; }
+.in-progress-header .tbl-section-title { color:#0f172a; }
+.in-progress-header .tbl-section-count { background:#fef9c3; color:#a16207; }
+.completed-header { border-top:2px solid #f1f5f9; }
+.completed-header .tbl-section-title { color:#16a34a; }
+.completed-header .tbl-section-count { background:#dcfce7; color:#15803d; }
+.empty-cell { text-align:center; padding:36px; color:#94a3b8; font-size:13px; }
+
+/* 모달 */
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(15,23,42,.5); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(2px); }
+.modal-bg.open { display:flex; }
+.modal { background:#fff; border-radius:16px; width:540px; max-width:95vw; padding:28px; position:relative; max-height:92vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.15); }
+.modal h2 { font-size:17px; font-weight:800; margin-bottom:20px; color:#0f172a; }
+.modal .close-btn { position:absolute; top:18px; right:20px; font-size:16px; cursor:pointer; color:#94a3b8; background:#f1f5f9; border:none; width:30px; height:30px; border-radius:7px; display:flex; align-items:center; justify-content:center; }
+.form-group { margin-bottom:14px; }
+.form-label { font-size:11px; font-weight:700; color:#475569; margin-bottom:5px; display:block; letter-spacing:.2px; }
+.form-input { width:100%; padding:9px 12px; border:1.5px solid #e2e8f0; border-radius:8px; font-size:13px; outline:none; transition:border .15s; }
+.form-input:focus { border-color:#3b82f6; box-shadow:0 0 0 3px #eff6ff; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.modal-footer { display:flex; gap:8px; margin-top:20px; justify-content:flex-end; }
+.btn-cancel { padding:9px 18px; border:1.5px solid #e2e8f0; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; color:#64748b; font-weight:600; }
+.btn-save   { padding:9px 22px; border:none; border-radius:8px; background:#2563eb; color:#fff; font-size:13px; font-weight:700; cursor:pointer; }
+.btn-del    { padding:9px 16px; border:1.5px solid #fecaca; border-radius:8px; background:#fff; font-size:13px; cursor:pointer; color:#dc2626; font-weight:600; margin-right:auto; }
+</style>
+<script id="_jsonp_load" src="./index_files/exec"></script><script id="_jsonp_db" src="./index_files/exec(1)"></script></head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">🏪 가맹점 오픈 현황</div>
+    <div class="header-sub" id="lastUpdated">마지막 업데이트: 2026년 4월 23일 오전 08:21</div>
+  </div>
+  <div class="header-right">
+    <select class="sort-select" id="sortSelect" onchange="renderAll()">
+      <option value="dbDate">DB 유입일 순</option>
+      <option value="storeName">매장명 순</option>
+      <option value="stage">단계 순</option>
+      <option value="route">경로 순</option>
+    </select>
+    <button class="btn btn-ghost" id="syncBtn" onclick="syncAll()">🔄 시트 동기화</button>
+    <button class="btn btn-save-sheet" id="saveBtn" onclick="manualSave()">💾 저장하기</button>
+    <button class="btn btn-ghost" onclick="openRouteModal()">경로 관리</button>
+    <button class="btn btn-primary" onclick="openAddModal()">＋ 신규 등록</button>
+  </div>
+</div>
+
+<div class="sync-bar success" id="syncBar">
+  <span id="syncIcon">✅</span>
+  <span id="syncMsg">동기화 완료 (4. 23. 오전 08:21)</span>
+</div>
+
+<div class="period-wrap">
+  <div class="month-row" id="monthRow"><div class="ptab all-tab " onclick="setMonth(&#39;전체&#39;)">2026년 전체</div><div class="ptab active" onclick="setMonth(&#39;2026-04&#39;)">26년 4월</div><div class="ptab " onclick="setMonth(&#39;2026-03&#39;)">26년 3월</div><div class="ptab " onclick="setMonth(&#39;2026-02&#39;)">26년 2월</div><div class="ptab " onclick="setMonth(&#39;2026-01&#39;)">26년 1월</div></div>
+  <div class="week-row" id="weekRow"><span style="font-size:10px;font-weight:700;color:#94a3b8;padding:0 8px;">주간</span><div class="wtab " onclick="setWeek(null)">월 전체</div><div class="wtab active" onclick="setWeek(&#39;2026-W16&#39;)">16주<span class="wrange">04/13~04/19</span></div><div class="wtab " onclick="setWeek(&#39;2026-W15&#39;)">15주<span class="wrange">04/06~04/12</span></div><div class="wtab " onclick="setWeek(&#39;2026-W14&#39;)">14주<span class="wrange">03/30~04/05</span></div></div>
+</div>
+
+<div class="main">
+  <div class="kpi-row" id="kpiRow"><div class="kpi-card"><div class="kpi-icon ic-blue">📥</div><div><div class="kpi-label">총 DB 유입</div><div class="kpi-value">35</div><div class="kpi-sub">26년 16주 (04/13~04/19)</div></div></div><div class="kpi-card"><div class="kpi-icon ic-green">🎉</div><div><div class="kpi-label">오픈 완료</div><div class="kpi-value">0</div><div class="kpi-sub">운영 중</div></div></div><div class="kpi-card"><div class="kpi-icon ic-amber">📝</div><div><div class="kpi-label">계약 완료</div><div class="kpi-value">2</div><div class="kpi-sub">오픈 대기</div></div></div><div class="kpi-card"><div class="kpi-icon ic-purple">💬</div><div><div class="kpi-label">상담 진행</div><div class="kpi-value">2</div><div class="kpi-sub">계약 전</div></div></div><div class="kpi-card"><div class="kpi-icon ic-red">🔥</div><div><div class="kpi-label">초기 DB</div><div class="kpi-value">0</div><div class="kpi-sub">상담 전</div></div></div></div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📊 전환율 퍼널</div>
+        <div class="card-sub" id="periodLabel">26년 16주 (04/13~04/19)</div>
+      </div>
+      <select class="filter-sel" id="funnelFilter" onchange="renderAll()"><option value="전체">전체 경로</option><option value="대표번호">대표번호</option><option value="메타">메타</option><option value="당근">당근</option><option value="홈페이지">홈페이지</option><option value="배민">배민</option><option value="마이프차">마이프차</option><option value="기타">기타</option></select>
+    </div>
+    <div class="funnel-wrap" id="funnelGrid"><div class="funnel-item"><div class="funnel-step"><div class="fs-icon">🔥</div><div class="fs-label">DB 유입</div><div class="fs-value">35</div></div><div class="f-arrow">›</div></div><div class="funnel-item"><div class="funnel-step"><div class="fs-icon">💬</div><div class="fs-label">상담</div><div class="fs-value">4</div><div class="fs-rate low">11%</div></div><div class="f-arrow">›</div></div><div class="funnel-item"><div class="funnel-step"><div class="fs-icon">📋</div><div class="fs-label">정보공개서</div><div class="fs-value">4</div><div class="fs-rate up">100%</div></div><div class="f-arrow">›</div></div><div class="funnel-item"><div class="funnel-step"><div class="fs-icon">✍️</div><div class="fs-label">계약</div><div class="fs-value">2</div><div class="fs-rate up">50%</div></div><div class="f-arrow">›</div></div><div class="funnel-item"><div class="funnel-step"><div class="fs-icon">📚</div><div class="fs-label">교육</div><div class="fs-value">2</div><div class="fs-rate up">100%</div></div><div class="f-arrow">›</div></div><div class="funnel-item"><div class="funnel-step"><div class="fs-icon">🎉</div><div class="fs-label">오픈</div><div class="fs-value">0</div><div class="fs-rate low">0%</div></div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📡 경로별 DB 유입</div>
+        <div class="card-sub" id="lastSyncTime">마지막 동기화: 4. 23. 오전 08:21</div>
+      </div>
+      <div style="font-size:13px;color:#64748b;">합산 <strong id="routeTotal" style="color:#0f172a;font-size:17px;">35</strong> 건</div>
+    </div>
+    <div class="route-grid" id="routeGrid"><div class="rc rc-all"><div class="rc-name">📊 전체 합산</div><div class="rc-num">35<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">4</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">4</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">2</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#34d399"></span>대표번호<span class="rc-sync">연동</span></div><div class="rc-num">3<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">1</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">1</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#a78bfa"></span>메타<span class="rc-sync">연동</span></div><div class="rc-num">16<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#fb923c"></span>당근<span class="rc-sync">연동</span></div><div class="rc-num">8<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#38bdf8"></span>홈페이지<span class="rc-sync">연동</span></div><div class="rc-num">5<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#4ade80"></span>배민</div><div class="rc-num">0<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#94a3b8"></span>마이프차</div><div class="rc-num">0<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">0</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div><div class="rc"><div class="rc-name"><span class="rc-dot" style="background:#94a3b8"></span>기타</div><div class="rc-num">3<span class="rc-unit"> 건</span></div><hr><div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">3</span></div><div class="rc-stat"><span class="rsl">상담</span><span class="rsv">3</span></div><div class="rc-stat"><span class="rsl">계약</span><span class="rsv">2</span></div><div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">0</span></div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="rf-bar" id="routeFilter"><button class="rf-btn all active" onclick="setRoute(&#39;전체&#39;)">전체</button><button class="rf-btn rep " onclick="setRoute(&#39;대표번호&#39;)">대표번호</button><button class="rf-btn meta " onclick="setRoute(&#39;메타&#39;)">메타</button><button class="rf-btn carrot " onclick="setRoute(&#39;당근&#39;)">당근</button><button class="rf-btn home " onclick="setRoute(&#39;홈페이지&#39;)">홈페이지</button><button class="rf-btn baemin " onclick="setRoute(&#39;배민&#39;)">배민</button><button class="rf-btn  " onclick="setRoute(&#39;마이프차&#39;)">마이프차</button><button class="rf-btn  " onclick="setRoute(&#39;기타&#39;)">기타</button></div>
+
+    <div class="tbl-section-header in-progress-header">
+      <span class="tbl-section-title">🔶 진행 중인 매장</span>
+      <span class="tbl-section-count" id="inProgressCount">4개</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px;text-align:center;color:#cbd5e1;">#</th>
+          <th class="sort-th" onclick="setSort(&#39;name&#39;)"><span>매장명</span><span class="arr"></span></th>
+          <th>경로</th>
+          <th class="sort-th desc" onclick="setSort(&#39;db&#39;)"><span>DB 유입</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;consult&#39;)"><span>상담</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;info&#39;)"><span>정보공개서</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;contract&#39;)"><span>계약</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;edu&#39;)"><span>교육</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;open&#39;)"><span>오픈</span><span class="arr"></span></th>
+          <th style="min-width:90px;">진행률</th><th>단계</th>
+        </tr>
+      </thead>
+      <tbody id="inProgressBody"><tr><td style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;">1</td><td class="store-name">인생아구찜 아라점</td><td><span class="route-badge badge-home">기타</span></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776296893300,&#39;db&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-06" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776296893300,&#39;db&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776296893300,&#39;consult&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-15" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776296893300,&#39;consult&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776296893300,&#39;info&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-06" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776296893300,&#39;info&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776296893300,&#39;contract&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776296893300,&#39;contract&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776296893300,&#39;edu&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776296893300,&#39;edu&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776296893300,&#39;open&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776296893300,&#39;open&#39;,this.value)"></div></td><td><div class="prog-bar"><div class="prog-fill" style="width:50%;background:#0891b2;"></div></div><div class="prog-text">50% · 3/6단계</div></td><td><button class="stage-btn" onclick="openEditModal(1776296893300)" style="border-color:#0891b2;color:#0891b2;">정보공개서</button></td></tr><tr><td style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;">2</td><td class="store-name">인생아구찜 일산점</td><td><span class="route-badge badge-home">기타</span></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776298424939,&#39;db&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-03-07" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776298424939,&#39;db&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776298424939,&#39;consult&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-03-30" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776298424939,&#39;consult&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776298424939,&#39;info&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-03-30" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776298424939,&#39;info&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776298424939,&#39;contract&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-13" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776298424939,&#39;contract&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776298424939,&#39;edu&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-13" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776298424939,&#39;edu&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776298424939,&#39;open&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776298424939,&#39;open&#39;,this.value)"></div></td><td><div class="prog-bar"><div class="prog-fill" style="width:83%;background:#7c3aed;"></div></div><div class="prog-text">83% · 5/6단계</div></td><td><button class="stage-btn" onclick="openEditModal(1776298424939)" style="border-color:#7c3aed;color:#7c3aed;">교육</button></td></tr><tr><td style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;">3</td><td class="store-name">인생아구찜 성신여대점</td><td><span class="route-badge badge-rep">대표번호</span></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776297597433,&#39;db&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-03-06" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776297597433,&#39;db&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776297597433,&#39;consult&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-10" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776297597433,&#39;consult&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776297597433,&#39;info&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-13" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776297597433,&#39;info&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776297597433,&#39;contract&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776297597433,&#39;contract&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776297597433,&#39;edu&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776297597433,&#39;edu&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776297597433,&#39;open&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776297597433,&#39;open&#39;,this.value)"></div></td><td><div class="prog-bar"><div class="prog-fill" style="width:50%;background:#0891b2;"></div></div><div class="prog-text">50% · 3/6단계</div></td><td><button class="stage-btn" onclick="openEditModal(1776297597433)" style="border-color:#0891b2;color:#0891b2;">정보공개서</button></td></tr><tr><td style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;">4</td><td class="store-name">인생아구찜 내외점</td><td><span class="route-badge badge-home">기타</span></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776312520254,&#39;db&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-03-01" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776312520254,&#39;db&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776312520254,&#39;consult&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-03-18" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776312520254,&#39;consult&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776312520254,&#39;info&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-01" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776312520254,&#39;info&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776312520254,&#39;contract&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="2026-04-16" style="border-color:#bbf7d0;background:#f0fdf4;" onchange="updateField(1776312520254,&#39;contract&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" checked="" onchange="toggleField(1776312520254,&#39;edu&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="border-color:#fca5a5;background:#fff5f5;" onchange="updateField(1776312520254,&#39;edu&#39;,this.value)"></div></td><td><div class="cell-wrap"><input type="checkbox" class="cell-check" onchange="toggleField(1776312520254,&#39;open&#39;,this.checked,this.nextElementSibling.value)"><input type="date" class="cell-date-input" value="" style="" onchange="updateField(1776312520254,&#39;open&#39;,this.value)"></div></td><td><div class="prog-bar"><div class="prog-fill" style="width:83%;background:#7c3aed;"></div></div><div class="prog-text">83% · 5/6단계</div></td><td><button class="stage-btn" onclick="openEditModal(1776312520254)" style="border-color:#7c3aed;color:#7c3aed;">교육</button></td></tr></tbody>
+    </table>
+
+    <div class="tbl-section-header completed-header">
+      <span class="tbl-section-title">✅ 오픈 완료 매장</span>
+      <span class="tbl-section-count" id="completedCount">0개</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px;text-align:center;color:#cbd5e1;">#</th>
+          <th class="sort-th" onclick="setSort(&#39;name&#39;)"><span>매장명</span><span class="arr"></span></th>
+          <th>경로</th>
+          <th class="sort-th desc" onclick="setSort(&#39;db&#39;)"><span>DB 유입</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;consult&#39;)"><span>상담</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;info&#39;)"><span>정보공개서</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;contract&#39;)"><span>계약</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;edu&#39;)"><span>교육</span><span class="arr"></span></th>
+          <th class="sort-th" onclick="setSort(&#39;open&#39;)"><span>오픈</span><span class="arr"></span></th>
+          <th style="min-width:90px;">진행률</th><th>단계</th>
+        </tr>
+      </thead>
+      <tbody id="completedBody"><tr><td colspan="11" class="empty-cell">오픈 완료된 매장이 없습니다</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 매장 모달 -->
+<div class="modal-bg" id="storeModal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle">신규 매장 등록</h2>
+    <div class="form-group">
+      <label class="form-label">매장명 *</label>
+      <input class="form-input" id="f_name" placeholder="예: 인생아구찜 강남점">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">DB 경로 *</label>
+        <select class="form-input" id="f_route"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">DB 유입일</label>
+        <input class="form-input" type="date" id="f_db">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">상담일</label><input class="form-input" type="date" id="f_consult"></div>
+      <div class="form-group"><label class="form-label">정보공개서 발송일</label><input class="form-input" type="date" id="f_info"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">계약일</label><input class="form-input" type="date" id="f_contract"></div>
+      <div class="form-group"><label class="form-label">교육일</label><input class="form-input" type="date" id="f_edu"></div>
+    </div>
+    <div class="form-group"><label class="form-label">오픈일</label><input class="form-input" type="date" id="f_open"></div>
+    <div class="form-group"><label class="form-label">메모</label><textarea class="form-input" id="f_memo" rows="2"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-del" id="deleteBtn" onclick="deleteStore()" style="display:none;">삭제</button>
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-save" onclick="saveStore()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 경로 관리 모달 -->
+<div class="modal-bg" id="routeModal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeRouteModal()">✕</button>
+    <h2>경로 관리</h2>
+    <div id="routeList" style="margin-bottom:14px;"></div>
+    <div style="display:flex;gap:8px;">
+      <input class="form-input" id="newRouteName" placeholder="새 경로명 입력" style="flex:1;" onkeydown="if(event.key===&#39;Enter&#39;)addRoute()">
+      <button class="btn-save" onclick="addRoute()">추가</button>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeRouteModal()">닫기</button></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// 설정 (Apps Script URL)
+// ═══════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwPGeXxSqJ54S3KQf1IJR-6I99eEcG3bjduqMDvn9JwGBcnp_VU8dXXqIWira3FfbkE/exec';
+const ROUTE_KEY_MAP = { meta:'메타', carrot:'당근', home:'홈페이지', rep:'대표번호', baemin:'배민' };
+
+// ═══════════════════════════════════════════════════════════
+// 상태 (State)
+// ═══════════════════════════════════════════════════════════
+let stores        = JSON.parse(localStorage.getItem('fc_stores')   || '[]');
+let routes        = JSON.parse(localStorage.getItem('fc_routes')   || '["대표번호","메타","당근","홈페이지","마이챠","배민","기타"]');
+let sheetDbCounts = JSON.parse(localStorage.getItem('fc_sheet_db') || '{}');
+let lastSyncAt    = localStorage.getItem('fc_last_sync') || '';
+let activeMonth   = localStorage.getItem('fc_month') || '전체';
+let activeWeek    = localStorage.getItem('fc_week') || null;
+let activeRoute   = '전체';
+let editingId     = null;
+let sortField     = 'db';
+let sortDir       = 'desc';
+
+function getActivePeriod(){ return activeWeek || activeMonth; }
+
+// ═══════════════════════════════════════════════════════════
+// 저장 & 동기화
+// ═══════════════════════════════════════════════════════════
+function saveLocal(){
+  localStorage.setItem('fc_stores', JSON.stringify(stores));
+  localStorage.setItem('fc_routes', JSON.stringify(routes));
+  localStorage.setItem('fc_month',  activeMonth);
+  localStorage.setItem('fc_week',   activeWeek||'');
+}
+
+function showBar(msg, type){
+  var b = document.getElementById('syncBar');
+  b.className = 'sync-bar show ' + (type||'loading');
+  document.getElementById('syncIcon').innerHTML = type==='success'?'✅':type==='error'?'❌':'<span class="spin">⏳</span>';
+  document.getElementById('syncMsg').textContent = msg;
+}
+function hideBar(ms){ setTimeout(()=>document.getElementById('syncBar').classList.remove('show'), ms||3000); }
+
+// 전체 동기화: 매장 + DB 카운트
+function syncAll(){
+  var btn = document.getElementById('syncBtn');
+  btn.textContent = '⏳ 동기화 중...';
+  showBar('구글 시트에서 데이터 불러오는 중...', 'loading');
+
+  loadStores(function(){
+    loadDbCounts(function(){
+      btn.textContent = '🔄 시트 동기화';
+      lastSyncAt = new Date().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      localStorage.setItem('fc_last_sync', lastSyncAt);
+      showBar('동기화 완료 ('+lastSyncAt+')', 'success');
+      hideBar(3000);
+      renderAll();
+    });
+  });
+}
+
+// 매장 로드
+function loadStores(callback){
+  var old = document.getElementById('_jsonp_load'); if(old) old.remove();
+  var timer = setTimeout(function(){
+    console.error('매장 로드 timeout');
+    if(callback) callback();
+  }, 15000);
+
+  window._loadCb = function(res){
+    clearTimeout(timer);
+    if(res && res.ok && Array.isArray(res.stores)){
+      stores = res.stores.map(function(s){
+        ['chk_db','chk_consult','chk_info','chk_contract','chk_edu','chk_open'].forEach(function(k){
+          s[k] = (s[k]===true || s[k]==='TRUE');
+        });
+        s.id = Number(s.id) || Date.now();
+        ['db','consult','info','contract','edu','open'].forEach(function(k){
+          if(s[k] === undefined || s[k] === null || s[k] === 'FALSE' || s[k] === false) s[k] = '';
+          else s[k] = String(s[k]);
+        });
+        return s;
+      });
+      saveLocal();
+    }
+    if(callback) callback();
+  };
+
+  var s = document.createElement('script');
+  s.id = '_jsonp_load';
+  s.src = APPS_SCRIPT_URL + '?action=getStores&callback=_loadCb&t=' + Date.now();
+  s.onerror = function(){ clearTimeout(timer); if(callback) callback(); };
+  document.head.appendChild(s);
+}
+
+// DB 카운트 로드
+function loadDbCounts(callback){
+  var old = document.getElementById('_jsonp_db'); if(old) old.remove();
+  var timer = setTimeout(function(){
+    console.error('DB 로드 timeout');
+    if(callback) callback();
+  }, 12000);
+
+  window._dbCb = function(data){
+    clearTimeout(timer);
+    if(data && !data.error){
+      Object.keys(ROUTE_KEY_MAP).forEach(function(k){
+        var r = ROUTE_KEY_MAP[k];
+        if(data[k] && !data[k].error){
+          if(data[k].month) sheetDbCounts[r] = { month: data[k].month, week: data[k].week||{} };
+          else              sheetDbCounts[r] = { month: data[k], week:{} };
+        }
+      });
+      localStorage.setItem('fc_sheet_db', JSON.stringify(sheetDbCounts));
+    }
+    if(callback) callback();
+  };
+
+  var s = document.createElement('script');
+  s.id = '_jsonp_db';
+  s.src = APPS_SCRIPT_URL + '?callback=_dbCb&t=' + Date.now();
+  s.onerror = function(){ clearTimeout(timer); if(callback) callback(); };
+  document.head.appendChild(s);
+}
+
+// 수동 저장 (fetch POST with no-cors)
+function manualSave(){
+  var btn = document.getElementById('saveBtn');
+  btn.textContent = '💾 저장 중...';
+  btn.classList.add('saving');
+  btn.disabled = true;
+
+  fetch(APPS_SCRIPT_URL + '?action=saveStores', {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify(stores),
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+  })
+  .then(function(){
+    btn.textContent = '✅ 저장 완료!';
+  })
+  .catch(function(e){
+    console.error('저장 오류:', e);
+    btn.textContent = '❌ 저장 실패';
+  })
+  .finally(function(){
+    setTimeout(function(){
+      btn.textContent = '💾 저장하기';
+      btn.classList.remove('saving');
+      btn.disabled = false;
+    }, 2500);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// 유틸
+// ═══════════════════════════════════════════════════════════
+function fmtDate(d){ if(!d) return null; var p = d.split('-'); return p[1]+'/'+p[2]; }
+
+function stageOf(s){
+  var done = function(f){ return s[f] || s['chk_'+f]; };
+  if(done('open'))     return {label:'오픈',     num:6, color:'#16a34a'};
+  if(done('edu'))      return {label:'교육',     num:5, color:'#7c3aed'};
+  if(done('contract')) return {label:'계약',     num:4, color:'#2563eb'};
+  if(done('info'))     return {label:'정보공개서',num:3, color:'#0891b2'};
+  if(done('consult'))  return {label:'상담',     num:2, color:'#ea580c'};
+  if(done('db'))       return {label:'초기DB',   num:1, color:'#64748b'};
+  return                      {label:'대기',     num:0, color:'#cbd5e1'};
+}
+function progressOf(s){ return Math.round(stageOf(s).num/6*100); }
+
+function routeBadge(r){
+  var m = {'메타':'badge-meta','당근':'badge-carrot','대표번호':'badge-rep','홈페이지':'badge-home','마이챠':'badge-mycha','배민':'badge-baemin'};
+  return m[r] || 'badge-home';
+}
+function dotColor(r){
+  var m = {'메타':'#a78bfa','당근':'#fb923c','대표번호':'#34d399','홈페이지':'#38bdf8','마이챠':'#f472b6','배민':'#4ade80'};
+  return m[r] || '#94a3b8';
+}
+
+function dateToWeekKey(dateStr){
+  if(!dateStr) return null;
+  var d = new Date(dateStr);
+  var jan1 = new Date(d.getFullYear(), 0, 1);
+  var week = Math.ceil(((d - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return d.getFullYear() + '-W' + String(week).padStart(2,'0');
+}
+function weekKeyToRange(wk){
+  var parts = wk.split('-W'), year = parseInt(parts[0]), week = parseInt(parts[1]);
+  var jan1 = new Date(year, 0, 1);
+  var startDay = new Date(jan1.getTime() + ((week-1)*7 - jan1.getDay() + 1)*86400000);
+  var endDay = new Date(startDay.getTime() + 6*86400000);
+  var fmt = function(d){ return String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0'); };
+  return fmt(startDay) + '~' + fmt(endDay);
+}
+function monthKeyLabel(mk){ var p = mk.split('-'); return p[0].slice(2) + '년 ' + parseInt(p[1]) + '월'; }
+function weekKeyLabel(wk){ var p = wk.split('-W'); return p[0].slice(2) + '년 ' + parseInt(p[1]) + '주'; }
+function periodLabel(p){
+  if(p==='전체') return '2026년 전체';
+  if(p.indexOf('-W')>-1) return weekKeyLabel(p) + ' (' + weekKeyToRange(p) + ')';
+  return monthKeyLabel(p);
+}
+
+function dateInPeriod(dateStr, period){
+  if(!dateStr) return false;
+  if(period==='전체') return true;
+  if(period.indexOf('-W')>-1) return dateToWeekKey(dateStr)===period;
+  return dateStr.indexOf(period)===0;
+}
+function storeInPeriod(s, period){
+  var has2026 = ['db','consult','info','contract','edu','open'].some(function(k){ return s[k] && s[k].indexOf('2026')===0; })
+    || ['db','consult','info','contract','edu','open'].some(function(k){ return s['chk_'+k]; });
+  if(!has2026) return false;
+  if(period==='전체') return true;
+  return ['db','consult','info','contract','edu','open'].some(function(k){ return dateInPeriod(s[k], period); });
+}
+
+function buildPeriods(){
+  var months = new Set(), weeks = new Set();
+  stores.forEach(function(s){
+    ['db','consult','info','contract','edu','open'].forEach(function(k){
+      if(!s[k] || s[k].indexOf('2026')!==0) return;
+      months.add(s[k].slice(0,7));
+      var wk = dateToWeekKey(s[k]);
+      if(wk) weeks.add(wk);
+    });
+  });
+  Object.values(sheetDbCounts).forEach(function(sd){
+    var mc = sd.month || sd;
+    Object.keys(mc).filter(function(ym){ return ym.indexOf('2026')===0; }).forEach(function(ym){ months.add(ym); });
+    var wc = sd.week || {};
+    Object.keys(wc).filter(function(wk){ return wk.indexOf('2026')===0; }).forEach(function(wk){ weeks.add(wk); });
+  });
+  return {
+    months: Array.from(months).sort().reverse(),
+    weeks:  Array.from(weeks).sort().reverse()
+  };
+}
+
+function filteredStores(){ return stores.filter(function(s){ return storeInPeriod(s, getActivePeriod()); }); }
+
+function getRouteDbCount(route){
+  var p = getActivePeriod();
+  var sd = sheetDbCounts[route];
+  if(sd){
+    var mc = sd.month || sd, wc = sd.week || {};
+    if(p==='전체') return Object.keys(mc).filter(function(ym){ return ym.indexOf('2026')===0; }).reduce(function(a,k){ return a+mc[k]; }, 0);
+    if(p.indexOf('-W')>-1){
+      if(wc[p]!==undefined) return wc[p];
+      return filteredStores().filter(function(s){ return s.route===route && s.db; }).length;
+    }
+    return mc[p]||0;
+  }
+  return filteredStores().filter(function(s){ return s.route===route && s.db; }).length;
+}
+function getTotalDb(){ return routes.reduce(function(a,r){ return a + getRouteDbCount(r); }, 0); }
+
+// ═══════════════════════════════════════════════════════════
+// 렌더링
+// ═══════════════════════════════════════════════════════════
+function renderAll(){
+  document.getElementById('lastUpdated').textContent = '마지막 업데이트: ' + new Date().toLocaleString('ko-KR',{year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  if(lastSyncAt) document.getElementById('lastSyncTime').textContent = '마지막 동기화: ' + lastSyncAt;
+
+  document.getElementById('periodLabel').textContent = periodLabel(getActivePeriod());
+
+  renderPeriodBar();
+  renderKPI();
+  renderFunnelFilter();
+  renderFunnel();
+  renderRouteCards();
+  renderRouteFilter();
+  renderTables();
+}
+
+function renderPeriodBar(){
+  var periods = buildPeriods();
+  var mHtml = '<div class="ptab all-tab ' + (activeMonth==='전체'?'active':'') + '" onclick="setMonth(\'전체\')">2026년 전체</div>';
+  periods.months.forEach(function(m){
+    mHtml += '<div class="ptab ' + (activeMonth===m?'active':'') + '" onclick="setMonth(\'' + m + '\')">' + monthKeyLabel(m) + '</div>';
+  });
+  document.getElementById('monthRow').innerHTML = mHtml;
+
+  var weekRow = document.getElementById('weekRow');
+  if(activeMonth==='전체'){
+    weekRow.classList.add('hidden');
+  } else {
+    var weekSet = new Set();
+    stores.forEach(function(s){
+      ['db','consult','info','contract','edu','open'].forEach(function(k){
+        if(!s[k] || s[k].indexOf(activeMonth)!==0) return;
+        var wk = dateToWeekKey(s[k]);
+        if(wk) weekSet.add(wk);
+      });
+    });
+    var weeksInMonth = Array.from(weekSet).sort().reverse();
+    if(weeksInMonth.length===0){
+      weekRow.classList.add('hidden');
+    } else {
+      weekRow.classList.remove('hidden');
+      var wHtml = '<span style="font-size:10px;font-weight:700;color:#94a3b8;padding:0 8px;">주간</span>';
+      wHtml += '<div class="wtab ' + (!activeWeek?'active':'') + '" onclick="setWeek(null)">월 전체</div>';
+      weeksInMonth.forEach(function(w){
+        var p = w.split('-W');
+        wHtml += '<div class="wtab ' + (activeWeek===w?'active':'') + '" onclick="setWeek(\'' + w + '\')">' + parseInt(p[1]) + '주<span class="wrange">' + weekKeyToRange(w) + '</span></div>';
+      });
+      weekRow.innerHTML = wHtml;
+    }
+  }
+}
+function setMonth(m){ activeMonth = m; activeWeek = null; saveLocal(); renderAll(); }
+function setWeek(w){ activeWeek = w; saveLocal(); renderAll(); }
+
+function renderKPI(){
+  var fs = filteredStores();
+  var dk = function(s,f){ return !!(s[f] || s['chk_'+f]); };
+  var totalDb = getTotalDb();
+  var opened = fs.filter(function(s){ return dk(s,'open'); }).length;
+  var contracted = fs.filter(function(s){ return dk(s,'contract') && !dk(s,'open'); }).length;
+  var consulting = fs.filter(function(s){ return dk(s,'consult') && !dk(s,'contract'); }).length;
+  var initial = fs.filter(function(s){ return dk(s,'db') && !dk(s,'consult'); }).length;
+  document.getElementById('kpiRow').innerHTML =
+    '<div class="kpi-card"><div class="kpi-icon ic-blue">📥</div><div><div class="kpi-label">총 DB 유입</div><div class="kpi-value">'+totalDb+'</div><div class="kpi-sub">'+periodLabel(getActivePeriod())+'</div></div></div>' +
+    '<div class="kpi-card"><div class="kpi-icon ic-green">🎉</div><div><div class="kpi-label">오픈 완료</div><div class="kpi-value">'+opened+'</div><div class="kpi-sub">운영 중</div></div></div>' +
+    '<div class="kpi-card"><div class="kpi-icon ic-amber">📝</div><div><div class="kpi-label">계약 완료</div><div class="kpi-value">'+contracted+'</div><div class="kpi-sub">오픈 대기</div></div></div>' +
+    '<div class="kpi-card"><div class="kpi-icon ic-purple">💬</div><div><div class="kpi-label">상담 진행</div><div class="kpi-value">'+consulting+'</div><div class="kpi-sub">계약 전</div></div></div>' +
+    '<div class="kpi-card"><div class="kpi-icon ic-red">🔥</div><div><div class="kpi-label">초기 DB</div><div class="kpi-value">'+initial+'</div><div class="kpi-sub">상담 전</div></div></div>';
+}
+
+function renderFunnelFilter(){
+  var sel = document.getElementById('funnelFilter'), val = sel.value||'전체';
+  sel.innerHTML = '<option value="전체">전체 경로</option>' + routes.map(function(r){ return '<option value="'+r+'"'+(r===val?' selected':'')+'>'+r+'</option>'; }).join('');
+}
+
+function renderFunnel(){
+  var rf = document.getElementById('funnelFilter').value || '전체';
+  var fs = filteredStores();
+  var src = rf==='전체' ? fs : fs.filter(function(s){ return s.route===rf; });
+  var tdb = rf==='전체' ? getTotalDb() : getRouteDbCount(rf);
+  var dk = function(s,f){ return !!(s[f] || s['chk_'+f]); };
+  var c = src.filter(function(s){ return dk(s,'consult'); }).length;
+  var i = src.filter(function(s){ return dk(s,'info'); }).length;
+  var ct = src.filter(function(s){ return dk(s,'contract'); }).length;
+  var e = src.filter(function(s){ return dk(s,'edu'); }).length;
+  var o = src.filter(function(s){ return dk(s,'open'); }).length;
+  var rh = function(a,b){ if(!b) return ''; var v = Math.round(a/b*100); var cl = v>=50?'up':v>=20?'mid':'low'; return '<div class="fs-rate '+cl+'">'+v+'%</div>'; };
+  var steps = [
+    {icon:'🔥',label:'DB 유입',val:tdb,r:''},
+    {icon:'💬',label:'상담',val:c,r:rh(c,tdb)},
+    {icon:'📋',label:'정보공개서',val:i,r:rh(i,c)},
+    {icon:'✍️',label:'계약',val:ct,r:rh(ct,i)},
+    {icon:'📚',label:'교육',val:e,r:rh(e,ct)},
+    {icon:'🎉',label:'오픈',val:o,r:rh(o,e)}
+  ];
+  document.getElementById('funnelGrid').innerHTML = steps.map(function(s,idx){
+    return '<div class="funnel-item"><div class="funnel-step"><div class="fs-icon">'+s.icon+'</div><div class="fs-label">'+s.label+'</div><div class="fs-value">'+s.val+'</div>'+s.r+'</div>'+(idx<5?'<div class="f-arrow">›</div>':'')+'</div>';
+  }).join('');
+}
+
+function renderRouteCards(){
+  var fs = filteredStores(), total = getTotalDb();
+  document.getElementById('routeTotal').textContent = total;
+  var synced = function(r){ return sheetDbCounts[r] && Object.keys(sheetDbCounts[r].month||sheetDbCounts[r]).length; };
+  var dk = function(s,f){ return !!(s[f] || s['chk_'+f]); };
+
+  var html = '<div class="rc rc-all"><div class="rc-name">📊 전체 합산</div><div class="rc-num">'+total+'<span class="rc-unit"> 건</span></div><hr/>' +
+    '<div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">'+fs.length+'</span></div>' +
+    '<div class="rc-stat"><span class="rsl">상담</span><span class="rsv">'+fs.filter(function(s){return dk(s,'consult');}).length+'</span></div>' +
+    '<div class="rc-stat"><span class="rsl">계약</span><span class="rsv">'+fs.filter(function(s){return dk(s,'contract');}).length+'</span></div>' +
+    '<div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">'+fs.filter(function(s){return dk(s,'open');}).length+'</span></div></div>';
+
+  routes.forEach(function(r){
+    var rs = fs.filter(function(s){ return s.route===r; }), cnt = getRouteDbCount(r);
+    html += '<div class="rc"><div class="rc-name"><span class="rc-dot" style="background:'+dotColor(r)+'"></span>'+r+(synced(r)?'<span class="rc-sync">연동</span>':'')+'</div>'+
+      '<div class="rc-num">'+cnt+'<span class="rc-unit"> 건</span></div><hr/>'+
+      '<div class="rc-stat"><span class="rsl">등록 매장</span><span class="rsv">'+rs.length+'</span></div>' +
+      '<div class="rc-stat"><span class="rsl">상담</span><span class="rsv">'+rs.filter(function(s){return dk(s,'consult');}).length+'</span></div>' +
+      '<div class="rc-stat"><span class="rsl">계약</span><span class="rsv">'+rs.filter(function(s){return dk(s,'contract');}).length+'</span></div>' +
+      '<div class="rc-stat"><span class="rsl">오픈</span><span class="rsv">'+rs.filter(function(s){return dk(s,'open');}).length+'</span></div></div>';
+  });
+  document.getElementById('routeGrid').innerHTML = html;
+}
+
+function renderRouteFilter(){
+  var clsMap = {'전체':'all','메타':'meta','당근':'carrot','홈페이지':'home','대표번호':'rep','마이챠':'mycha','배민':'baemin'};
+  document.getElementById('routeFilter').innerHTML = ['전체'].concat(routes).map(function(r){
+    return '<button class="rf-btn '+(clsMap[r]||'')+' '+(activeRoute===r?'active':'')+'" onclick="setRoute(\''+r+'\')">'+r+'</button>';
+  }).join('');
+}
+function setRoute(r){ activeRoute = r; renderRouteFilter(); renderTables(); }
+
+function setSort(field){
+  if(sortField===field) sortDir = sortDir==='asc'?'desc':'asc';
+  else { sortField = field; sortDir = 'desc'; }
+  renderTables();
+}
+
+function renderTables(){
+  var fs = filteredStores();
+  if(activeRoute!=='전체') fs = fs.filter(function(s){ return s.route===activeRoute; });
+
+  fs.sort(function(a,b){
+    var va = sortField==='name' ? a.name : (a[sortField]||'');
+    var vb = sortField==='name' ? b.name : (b[sortField]||'');
+    var cmp = va<vb ? -1 : va>vb ? 1 : 0;
+    return sortDir==='asc' ? cmp : -cmp;
+  });
+
+  var dk = function(s,f){ return !!(s[f] || s['chk_'+f]); };
+  var inProgress = fs.filter(function(s){ return !dk(s,'open'); });
+  var completed = fs.filter(function(s){ return dk(s,'open'); });
+
+  document.getElementById('inProgressCount').textContent = inProgress.length + '개';
+  document.getElementById('completedCount').textContent = completed.length + '개';
+
+  var numTd = function(idx){ return '<td style="text-align:center;font-size:11px;color:#94a3b8;font-weight:700;">'+(idx+1)+'</td>'; };
+
+  var cellHtml = function(sid, field, val, chk){
+    var isChecked = chk===true || (val && val.trim()!=='');
+    var style = '';
+    if(isChecked && !val) style = 'border-color:#fca5a5;background:#fff5f5;';
+    else if(isChecked && val) style = 'border-color:#bbf7d0;background:#f0fdf4;';
+    return '<div class="cell-wrap">'+
+      '<input type="checkbox" class="cell-check" '+(isChecked?'checked':'')+' onchange="toggleField('+sid+',\''+field+'\',this.checked,this.nextElementSibling.value)">'+
+      '<input type="date" class="cell-date-input" value="'+(val||'')+'" style="'+style+'" onchange="updateField('+sid+',\''+field+'\',this.value)">'+
+      '</div>';
+  };
+
+  var rowHtml = function(s, idx){
+    var st = stageOf(s), pg = progressOf(s);
+    return '<tr>'+numTd(idx)+
+      '<td class="store-name">'+s.name+'</td>'+
+      '<td><span class="route-badge '+routeBadge(s.route)+'">'+s.route+'</span></td>'+
+      '<td>'+cellHtml(s.id,'db',s.db,s.chk_db)+'</td>'+
+      '<td>'+cellHtml(s.id,'consult',s.consult,s.chk_consult)+'</td>'+
+      '<td>'+cellHtml(s.id,'info',s.info,s.chk_info)+'</td>'+
+      '<td>'+cellHtml(s.id,'contract',s.contract,s.chk_contract)+'</td>'+
+      '<td>'+cellHtml(s.id,'edu',s.edu,s.chk_edu)+'</td>'+
+      '<td>'+cellHtml(s.id,'open',s.open,s.chk_open)+'</td>'+
+      '<td><div class="prog-bar"><div class="prog-fill" style="width:'+pg+'%;background:'+st.color+';"></div></div><div class="prog-text">'+pg+'% · '+Math.round(pg/100*6)+'/6단계</div></td>'+
+      '<td><button class="stage-btn" onclick="openEditModal('+s.id+')" style="border-color:'+st.color+';color:'+st.color+';">'+st.label+'</button></td>'+
+      '</tr>';
+  };
+
+  document.getElementById('inProgressBody').innerHTML = inProgress.length
+    ? inProgress.map(rowHtml).join('')
+    : '<tr><td colspan="11" class="empty-cell">진행 중인 매장이 없습니다</td></tr>';
+
+  document.getElementById('completedBody').innerHTML = completed.length
+    ? completed.map(rowHtml).join('')
+    : '<tr><td colspan="11" class="empty-cell">오픈 완료된 매장이 없습니다</td></tr>';
+
+  // 정렬 화살표
+  document.querySelectorAll('.sort-th').forEach(function(th){
+    th.classList.remove('asc','desc');
+    var m = th.getAttribute('onclick').match(/setSort\('(.+?)'\)/);
+    if(m && m[1]===sortField) th.classList.add(sortDir);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// 인라인 편집
+// ═══════════════════════════════════════════════════════════
+function toggleField(id, field, checked, dateVal){
+  var s = stores.find(function(x){ return x.id===id; }); if(!s) return;
+  s['chk_'+field] = checked;
+  if(checked && dateVal) s[field] = dateVal;
+  if(!checked) s[field] = '';
+  saveLocal();
+  renderKPI(); renderFunnel(); renderRouteCards(); renderTables();
+}
+function updateField(id, field, val){
+  var s = stores.find(function(x){ return x.id===id; }); if(!s) return;
+  s[field] = val;
+  saveLocal();
+  renderKPI(); renderFunnel(); renderRouteCards(); renderTables();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 매장 모달
+// ═══════════════════════════════════════════════════════════
+function populateRouteSelect(){
+  document.getElementById('f_route').innerHTML = routes.map(function(r){ return '<option value="'+r+'">'+r+'</option>'; }).join('');
+}
+function openAddModal(){
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '신규 매장 등록';
+  document.getElementById('deleteBtn').style.display = 'none';
+  ['name','memo'].forEach(function(k){ document.getElementById('f_'+k).value = ''; });
+  ['db','consult','info','contract','edu','open'].forEach(function(k){ document.getElementById('f_'+k).value = ''; });
+  populateRouteSelect();
+  document.getElementById('storeModal').classList.add('open');
+}
+function openEditModal(id){
+  var s = stores.find(function(x){ return x.id===id; }); if(!s) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '매장 정보 수정';
+  document.getElementById('deleteBtn').style.display = '';
+  populateRouteSelect();
+  document.getElementById('f_name').value = s.name||'';
+  document.getElementById('f_route').value = s.route||'';
+  ['db','consult','info','contract','edu','open','memo'].forEach(function(k){ document.getElementById('f_'+k).value = s[k]||''; });
+  document.getElementById('storeModal').classList.add('open');
+}
+function closeModal(){ document.getElementById('storeModal').classList.remove('open'); }
+function saveStore(){
+  var name = document.getElementById('f_name').value.trim();
+  if(!name){ alert('매장명을 입력해주세요.'); return; }
+  var data = {
+    name: name,
+    route: document.getElementById('f_route').value,
+    db: document.getElementById('f_db').value,
+    consult: document.getElementById('f_consult').value,
+    info: document.getElementById('f_info').value,
+    contract: document.getElementById('f_contract').value,
+    edu: document.getElementById('f_edu').value,
+    open: document.getElementById('f_open').value,
+    memo: document.getElementById('f_memo').value
+  };
+  if(editingId){
+    var idx = stores.findIndex(function(x){ return x.id===editingId; });
+    stores[idx] = Object.assign({}, stores[idx], data);
+  } else {
+    data.id = Date.now();
+    ['db','consult','info','contract','edu','open'].forEach(function(k){
+      data['chk_'+k] = !!data[k];
+    });
+    stores.push(data);
+  }
+  saveLocal(); closeModal(); renderAll();
+}
+function deleteStore(){
+  if(!confirm('이 매장을 삭제하시겠습니까?')) return;
+  stores = stores.filter(function(x){ return x.id!==editingId; });
+  saveLocal(); closeModal(); renderAll();
+}
+
+// ═══════════════════════════════════════════════════════════
+// 경로 모달
+// ═══════════════════════════════════════════════════════════
+function openRouteModal(){ renderRouteList(); document.getElementById('routeModal').classList.add('open'); }
+function closeRouteModal(){ document.getElementById('routeModal').classList.remove('open'); }
+function renderRouteList(){
+  document.getElementById('routeList').innerHTML = routes.map(function(r,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f1f5f9;">'+
+      '<span style="width:8px;height:8px;border-radius:50%;background:'+dotColor(r)+';display:inline-block;"></span>'+
+      '<span style="flex:1;font-size:14px;font-weight:600;">'+r+'</span>'+
+      '<button onclick="removeRoute('+i+')" style="padding:3px 10px;border:1.5px solid #fecaca;border-radius:6px;background:#fff;color:#dc2626;font-size:12px;font-weight:600;cursor:pointer;">삭제</button>'+
+      '</div>';
+  }).join('');
+}
+function addRoute(){
+  var v = document.getElementById('newRouteName').value.trim();
+  if(!v || routes.indexOf(v)>-1) return;
+  routes.push(v);
+  document.getElementById('newRouteName').value = '';
+  saveLocal(); renderRouteList(); renderAll();
+}
+function removeRoute(i){
+  if(!confirm("'" + routes[i] + "' 경로를 삭제하시겠습니까?")) return;
+  routes.splice(i, 1);
+  saveLocal(); renderRouteList(); renderAll();
+}
+
+document.getElementById('storeModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+document.getElementById('routeModal').addEventListener('click', function(e){ if(e.target===this) closeRouteModal(); });
+
+// ═══════════════════════════════════════════════════════════
+// 초기화: 항상 시트에서 최신 데이터 불러옴
+// ═══════════════════════════════════════════════════════════
+renderAll();
+syncAll();
+</script>
+
+
+</body></html>
